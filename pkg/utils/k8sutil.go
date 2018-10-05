@@ -13,6 +13,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 // GetClient returns a k8s clientset to the request from inside of cluster
@@ -46,7 +47,9 @@ func GetClientOutOfCluster() kubernetes.Interface {
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
-
+	if err != nil {
+		logrus.Fatalf("clienset: %v", err)
+	}
 	return clientset
 }
 
