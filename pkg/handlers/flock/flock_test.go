@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bitnami-labs/kubewatch/config"
+	"github.com/snebel29/kubewatch/config"
 )
 
 func TestFlockInit(t *testing.T) {

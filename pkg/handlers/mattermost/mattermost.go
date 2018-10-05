@@ -26,8 +26,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bitnami-labs/kubewatch/config"
-	kbEvent "github.com/bitnami-labs/kubewatch/pkg/event"
+	"github.com/snebel29/kubewatch/config"
+	kbEvent "github.com/snebel29/kubewatch/pkg/event"
 )
 
 var mattermostColors = map[string]string{
