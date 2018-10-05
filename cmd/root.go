@@ -23,8 +23,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	c "github.com/bitnami-labs/kubewatch/pkg/client"
-	"github.com/bitnami-labs/kubewatch/config"
+	c "github.com/snebel29/kubewatch/pkg/client"
+	"github.com/snebel29/kubewatch/config"
 	"github.com/Sirupsen/logrus"
 )
 
