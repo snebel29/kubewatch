@@ -3,7 +3,7 @@ package utils
 import (
 	"os"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	apps_v1 "k8s.io/api/apps/v1"
 	apps_v1beta1 "k8s.io/api/apps/v1beta1"
 	batch_v1 "k8s.io/api/batch/v1"
