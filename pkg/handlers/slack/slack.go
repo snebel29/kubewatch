@@ -18,11 +18,11 @@ package slack
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/nlopes/slack"
 
+	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	"github.com/snebel29/kubewatch/pkg/event"
 	kbEvent "github.com/snebel29/kubewatch/pkg/event"
@@ -95,11 +95,11 @@ func notifySlack(s *Slack, obj interface{}, action string) {
 	params.AsUser = true
 	channelID, timestamp, err := api.PostMessage(s.Channel, "", params)
 	if err != nil {
-		log.Printf("%s\n", err)
+		logrus.Printf("%s\n", err)
 		return
 	}
 
-	log.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
+	logrus.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
 }
 
 func checkMissingSlackVars(s *Slack) error {

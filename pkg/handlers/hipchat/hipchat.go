@@ -18,13 +18,13 @@ package hipchat
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	hipchat "github.com/tbruyelle/hipchat-go/hipchat"
 
 	"net/url"
 
+	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	"github.com/snebel29/kubewatch/pkg/event"
 	kbEvent "github.com/snebel29/kubewatch/pkg/event"
@@ -111,11 +111,11 @@ func notifyHipchat(s *Hipchat, obj interface{}, action string) {
 	_, err := client.Room.Notification(s.Room, &notificationRequest)
 
 	if err != nil {
-		log.Printf("%s\n", err)
+		logrus.Printf("%s\n", err)
 		return
 	}
 
-	log.Printf("Message successfully sent to room %s", s.Room)
+	logrus.Printf("Message successfully sent to room %s", s.Room)
 }
 
 func checkMissingHipchatVars(s *Hipchat) error {

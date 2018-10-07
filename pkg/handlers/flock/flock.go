@@ -18,7 +18,6 @@ package flock
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"bytes"
@@ -26,6 +25,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	kbEvent "github.com/snebel29/kubewatch/pkg/event"
 )
@@ -102,11 +102,11 @@ func notifyFlock(f *Flock, obj interface{}, action string) {
 
 	err := postMessage(f.Url, flockMessage)
 	if err != nil {
-		log.Printf("%s\n", err)
+		logrus.Printf("%s\n", err)
 		return
 	}
 
-	log.Printf("Message successfully sent to channel %s at %s", f.Url, time.Now())
+	logrus.Printf("Message successfully sent to channel %s at %s", f.Url, time.Now())
 }
 
 func checkMissingFlockVars(s *Flock) error {

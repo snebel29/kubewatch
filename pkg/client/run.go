@@ -17,7 +17,7 @@ limitations under the License.
 package client
 
 import (
-	"log"
+	"github.com/sirupsen/logrus"
 
 	"github.com/snebel29/kubewatch/config"
 	"github.com/snebel29/kubewatch/pkg/handlers"
@@ -48,7 +48,7 @@ func Run(conf *config.Config) {
 	}
 
 	if err := eventHandler.Init(conf); err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	controller.Start(conf, eventHandler)
 }
