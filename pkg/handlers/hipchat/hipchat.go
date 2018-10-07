@@ -60,7 +60,7 @@ type Hipchat struct {
 
 // Init prepares hipchat configuration
 func (s *Hipchat) Init(c *config.Config) error {
-	url := c.Handler.Hipchat.Url
+	HcUrl := c.Handler.Hipchat.Url
 	room := c.Handler.Hipchat.Room
 	token := c.Handler.Hipchat.Token
 
@@ -72,13 +72,13 @@ func (s *Hipchat) Init(c *config.Config) error {
 		room = os.Getenv("KW_HIPCHAT_ROOM")
 	}
 
-	if url == "" {
-		url = os.Getenv("KW_HIPCHAT_URL")
+	if HcUrl == "" {
+		HcUrl = os.Getenv("KW_HIPCHAT_URL")
 	}
 
 	s.Token = token
 	s.Room = room
-	s.Url = url
+	s.Url = HcUrl
 
 	return checkMissingHipchatVars(s)
 }
