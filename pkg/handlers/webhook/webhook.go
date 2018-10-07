@@ -18,7 +18,6 @@ package webhook
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"bytes"
@@ -26,6 +25,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	kbEvent "github.com/snebel29/kubewatch/pkg/event"
 )
@@ -84,11 +84,11 @@ func notifyWebhook(m *Webhook, obj interface{}, action string) {
 
 	err := postMessage(m.Url, webhookMessage)
 	if err != nil {
-		log.Printf("%s\n", err)
+		logrus.Errorf("%s\n", err)
 		return
 	}
 
-	log.Printf("Message successfully sent to %s at %s ", m.Url, time.Now())
+	logrus.Printf("Message successfully sent to %s at %s ", m.Url, time.Now())
 }
 
 func checkMissingWebhookVars(s *Webhook) error {

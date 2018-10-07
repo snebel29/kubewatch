@@ -18,7 +18,6 @@ package mattermost
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"bytes"
@@ -26,6 +25,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	kbEvent "github.com/snebel29/kubewatch/pkg/event"
 )
@@ -115,11 +115,11 @@ func notifyMattermost(m *Mattermost, obj interface{}, action string) {
 
 	err := postMessage(m.Url, mattermostMessage)
 	if err != nil {
-		log.Printf("%s\n", err)
+		logrus.Printf("%s\n", err)
 		return
 	}
 
-	log.Printf("Message successfully sent to channel %s at %s", m.Channel, time.Now())
+	logrus.Printf("Message successfully sent to channel %s at %s", m.Channel, time.Now())
 }
 
 func checkMissingMattermostVars(s *Mattermost) error {
