@@ -80,7 +80,7 @@ func (m *Webhook) ObjectUpdated(oldObj, newObj interface{}) {
 func notifyWebhook(m *Webhook, obj interface{}, action string) {
 	e := kbEvent.New(obj, action)
 
-	webhookMessage := prepareWebhookMessage(e, m)
+	webhookMessage := prepareWebhookMessage(e)
 
 	err := postMessage(m.Url, webhookMessage)
 	if err != nil {
@@ -99,7 +99,7 @@ func checkMissingWebhookVars(s *Webhook) error {
 	return nil
 }
 
-func prepareWebhookMessage(e kbEvent.Event, m *Webhook) *WebhookMessage {
+func prepareWebhookMessage(e kbEvent.Event) *WebhookMessage {
 	return &WebhookMessage{
 		e.Message(),
 	}

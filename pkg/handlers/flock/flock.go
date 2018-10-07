@@ -98,7 +98,7 @@ func (f *Flock) ObjectUpdated(oldObj, newObj interface{}) {
 func notifyFlock(f *Flock, obj interface{}, action string) {
 	e := kbEvent.New(obj, action)
 
-	flockMessage := prepareFlockMessage(e, f)
+	flockMessage := prepareFlockMessage(e)
 
 	err := postMessage(f.Url, flockMessage)
 	if err != nil {
@@ -117,7 +117,7 @@ func checkMissingFlockVars(s *Flock) error {
 	return nil
 }
 
-func prepareFlockMessage(e kbEvent.Event, f *Flock) *FlockMessage {
+func prepareFlockMessage(e kbEvent.Event) *FlockMessage {
 
 	return &FlockMessage{
 		Text:         "Kubewatch Alert",
