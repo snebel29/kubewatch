@@ -30,13 +30,14 @@ var versionCmd = &cobra.Command{
 	Short: "print version",
 	Long:  `print version`,
 	Run: func(cmd *cobra.Command, args []string) {
-		versionPrettyString()
+		logger := logrus.New()
+		versionPrettyString(logger)
 	},
 }
 
-func versionPrettyString() {
-	logrus.Info("gitCommit: ", gitCommit)
-	logrus.Info("buildDate: ", buildDate)
+func versionPrettyString(logger *logrus.Logger) {
+	logger.Info("gitCommit: ", gitCommit)
+	logger.Info("buildDate: ", buildDate)
 }
 
 func init() {
