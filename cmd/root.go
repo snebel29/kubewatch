@@ -18,36 +18,34 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
+	"path/filepath"
+	"strings"
 
-	c "github.com/snebel29/kubewatch/pkg/client"
-	"github.com/snebel29/kubewatch/config"
 	"github.com/sirupsen/logrus"
+	"github.com/snebel29/kubewatch/config"
+	kubewatch "github.com/snebel29/kubewatch/pkg/client"
 )
 
-var cfgFile string
+var configFile, configFileName string
 
-// RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "kubewatch",
-	Short: "A watcher for Kubernetes",
-	Long: `A watcher for Kubernetes`,
+	Short: "Watch k8s events and trigger Handlers",
+	Long:  "Watch k8s events and trigger Handlers",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		config := &config.Config{}
-		if err := config.Load(); err != nil {
-			logrus.Fatal(err)
+		cfg := &config.Config{}
+		if err := viper.Unmarshal(cfg); err != nil {
+			logrus.Fatalf("Cannot unmarshal config: %s", err)
 		}
-		config.CheckMissingResourceEnvvars()
-		c.Run(config)
+		logrus.Infof("%+v", cfg)
+		kubewatch.Run(cfg)
 	},
 }
 
-// Execute adds all child commands to the root command sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -56,23 +54,28 @@ func Execute() {
 }
 
 func init() {
+	configFileName = ".kubewatch"
 	cobra.OnInitialize(initConfig)
-
-	//RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kubewatch.yaml)")
+	RootCmd.PersistentFlags().StringVar(
+		&configFile, "config", "", fmt.Sprintf("config file (default is ./%s)", configFileName),
+	)
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" { // enable ability to specify config file via flag
-		viper.SetConfigFile(cfgFile)
+	currentDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	replacer := strings.NewReplacer(".", "_")
+
+	viper.SetEnvPrefix("KW")
+	viper.SetEnvKeyReplacer(replacer)
+	viper.AutomaticEnv()
+
+	viper.AddConfigPath(currentDir)
+	viper.SetConfigName(configFileName)
+
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
 	}
-
-	viper.SetConfigName(".kubewatch.yaml") // name of config file (without extension)
-	viper.AddConfigPath("$HOME")  // adding home directory as first search path
-	viper.AutomaticEnv()          // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		logrus.Fatalf("Reading config: %s")
 	}
 }
