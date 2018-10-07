@@ -23,7 +23,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	"github.com/snebel29/kubewatch/pkg/event"
 	"github.com/snebel29/kubewatch/pkg/handlers"

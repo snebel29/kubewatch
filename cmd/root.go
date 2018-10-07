@@ -25,7 +25,7 @@ import (
 
 	c "github.com/snebel29/kubewatch/pkg/client"
 	"github.com/snebel29/kubewatch/config"
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var cfgFile string
