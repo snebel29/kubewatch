@@ -25,50 +25,50 @@ type Config struct {
 }
 
 type Handler struct {
-	Slack      Slack      `json:"slack"`
-	Hipchat    Hipchat    `json:"hipchat"`
-	Mattermost Mattermost `json:"mattermost"`
-	Flock      Flock      `json:"flock"`
-	Webhook    Webhook    `json:"webhook"`
+	Slack      Slack      `mapstructure:"slack"`
+	Hipchat    Hipchat    `mapstructure:"hipchat"`
+	Mattermost Mattermost `mapstructure:"mattermost"`
+	Flock      Flock      `mapstructure:"flock"`
+	Webhook    Webhook    `mapstructure:"webhook"`
 }
 
 // Resource contains resource configuration
 type Resource struct {
-	Deployment            bool `json:"deployment"`
-	ReplicationController bool `json:"rc"`
-	ReplicaSet            bool `json:"rs"`
-	DaemonSet             bool `json:"ds"`
-	Services              bool `json:"svc"`
-	Pod                   bool `json:"po"`
-	Job                   bool `json:"job"`
-	PersistentVolume      bool `json:"pv"`
-	Namespace             bool `json:"ns"`
-	Secret                bool `json:"secret"`
-	ConfigMap             bool `json:"configmap"`
-	Ingress               bool `json:"ing"`
+	Deployment            bool `mapstructure:"deployment"`
+	ReplicationController bool `mapstructure:"rc"`
+	ReplicaSet            bool `mapstructure:"rs"`
+	DaemonSet             bool `mapstructure:"ds"`
+	Services              bool `mapstructure:"svc"`
+	Pod                   bool `mapstructure:"po"`
+	Job                   bool `mapstructure:"job"`
+	PersistentVolume      bool `mapstructure:"pv"`
+	Namespace             bool `mapstructure:"ns"`
+	Secret                bool `mapstructure:"secret"`
+	ConfigMap             bool `mapstructure:"configmap"`
+	Ingress               bool `mapstructure:"ing"`
 }
 
 type Slack struct {
-	Token   string `json:"token"`
-	Channel string `json:"channel"`
+	Token   string `mapstructure:"token"`
+	Channel string `mapstructure:"channel"`
 }
 
 type Hipchat struct {
-	Token string `json:"token"`
-	Room  string `json:"room"`
-	Url   string `json:"url"`
+	Token string `mapstructure:"token"`
+	Room  string `mapstructure:"room"`
+	Url   string `mapstructure:"url"`
 }
 
 type Mattermost struct {
-	Channel  string `json:"room"`
-	Url      string `json:"url"`
-	Username string `json:"username"`
+	Channel  string `mapstructure:"room"`
+	Url      string `mapstructure:"url"`
+	Username string `mapstructure:"username"`
 }
 
 type Flock struct {
-	Url string `json:"url"`
+	Url string `mapstructure:"url"`
 }
 
 type Webhook struct {
-	Url string `json:"url"`
+	Url string `mapstructure:"url"`
 }
