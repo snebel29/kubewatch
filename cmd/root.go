@@ -41,15 +41,13 @@ var RootCmd = &cobra.Command{
 		if err := viper.Unmarshal(cfg); err != nil {
 			logrus.Fatalf("Cannot unmarshal config: %s", err)
 		}
-		logrus.Infof("%+v", cfg)
 		kubewatch.Run(cfg)
 	},
 }
 
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		logrus.Fatalf("%s", err)
 	}
 }
 
