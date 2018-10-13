@@ -100,7 +100,6 @@ func InitConfig(configFileName string, configFile string) {
 	viper.AddConfigPath(currentDir)
 	viper.SetConfigName(configFileName)
 
-	logrus.Infof("DEBUG: %s %s", configFileName, configFile)
 	if configFile != "" {
 		viper.SetConfigFile(configFile)
 	}
