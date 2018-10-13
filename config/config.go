@@ -16,6 +16,14 @@ limitations under the License.
 
 package config
 
+import (
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
 type Config struct {
 	Handler   Handler  `mapstructure:"handler"`
 	Resource  Resource `mapstructure:"resource"`
@@ -71,4 +79,32 @@ type Flock struct {
 
 type Webhook struct {
 	Url string `mapstructure:"url"`
+}
+
+func NewConfig() *Config {
+	cfg := &Config{}
+	if err := viper.Unmarshal(cfg); err != nil {
+		logrus.Fatalf("Cannot unmarshal config: %s", err)
+	}
+	return cfg
+}
+
+func InitConfig(configFileName string, configFile string) {
+	currentDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	replacer := strings.NewReplacer(".", "_")
+
+	viper.SetEnvPrefix("KW")
+	viper.SetEnvKeyReplacer(replacer)
+	viper.AutomaticEnv()
+
+	viper.AddConfigPath(currentDir)
+	viper.SetConfigName(configFileName)
+
+	logrus.Infof("DEBUG: %s %s", configFileName, configFile)
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
+	}
+	if err := viper.ReadInConfig(); err != nil {
+		logrus.Fatalf("Reading config: %s")
+	}
 }
