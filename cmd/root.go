@@ -22,19 +22,25 @@ import (
 	"github.com/snebel29/kubewatch/config"
 	kubewatch "github.com/snebel29/kubewatch/pkg/client"
 	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
 )
 
-var configFileName, configFile string
+var configFile, configFileName string
 
 var RootCmd = &cobra.Command{
 	Use:   "kubewatch",
 	Short: "Watch k8s events and trigger Handlers",
 	Long:  "Watch k8s events and trigger Handlers",
 
-	Run: func(cmd *cobra.Command, args []string) {
-		cfg := config.NewConfig()
-		logrus.Debugf("Running with config: %#v", cfg)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := config.NewConfig()
+		if err != nil {
+			return err
+		}
+		// TODO: Handle errors for kubewatch.Run
 		kubewatch.Run(cfg)
+		return nil
 	},
 }
 
@@ -45,7 +51,15 @@ func Execute() {
 }
 
 func initConfig() {
-	config.InitConfig(configFileName, configFile)
+	kubeWatchDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	err := config.InitConfig(&config.InitArgs{
+		ConfigFile:     configFile,
+		ConfigDir:      kubeWatchDir,
+		ConfigFileName: configFileName,
+	})
+	if err != nil {
+		logrus.Fatalf("%s", err)
+	}
 }
 
 func init() {

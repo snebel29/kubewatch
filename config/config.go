@@ -17,10 +17,11 @@ limitations under the License.
 package config
 
 import (
-	"github.com/sirupsen/logrus"
+	"errors"
+	"fmt"
 	"github.com/spf13/viper"
 	"os"
-	"path/filepath"
+	"reflect"
 	"strings"
 )
 
@@ -81,29 +82,41 @@ type Webhook struct {
 	Url string `mapstructure:"url"`
 }
 
-func NewConfig() *Config {
+func NewConfig() (*Config, error) {
 	cfg := &Config{}
-	if err := viper.Unmarshal(cfg); err != nil {
-		logrus.Fatalf("Cannot unmarshal config: %s", err)
+	viper.Unmarshal(cfg)
+	if reflect.DeepEqual(cfg, &Config{}) {
+		return nil, errors.New("Bad config")
+	} else {
+		return cfg, nil
 	}
-	return cfg
 }
 
-func InitConfig(configFileName string, configFile string) {
-	currentDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+type InitArgs struct {
+	ConfigFile     string
+	ConfigDir      string
+	ConfigFileName string
+}
+
+func InitConfig(args *InitArgs) error {
 	replacer := strings.NewReplacer(".", "_")
 
 	viper.SetEnvPrefix("KW")
 	viper.SetEnvKeyReplacer(replacer)
 	viper.AutomaticEnv()
 
-	viper.AddConfigPath(currentDir)
-	viper.SetConfigName(configFileName)
+	if args.ConfigFile != "" {
+		if _, err := os.Stat(args.ConfigFile); err != nil {
+			return errors.New(fmt.Sprintf("Failed to read config file %s", args.ConfigFile))
+		}
+		viper.SetConfigFile(args.ConfigFile)
 
-	if configFile != "" {
-		viper.SetConfigFile(configFile)
+	} else {
+		viper.AddConfigPath(args.ConfigDir)
+		viper.SetConfigName(args.ConfigFileName)
+		if err := viper.ReadInConfig(); err != nil {
+			return errors.New("Reading config: %s")
+		}
 	}
-	if err := viper.ReadInConfig(); err != nil {
-		logrus.Fatalf("Reading config: %s")
-	}
+	return nil
 }
