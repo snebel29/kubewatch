@@ -18,15 +18,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	kubewatch "github.com/snebel29/kubewatch/pkg/client"
+	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
 )
 
 var configFile, configFileName string
@@ -36,17 +33,31 @@ var RootCmd = &cobra.Command{
 	Short: "Watch k8s events and trigger Handlers",
 	Long:  "Watch k8s events and trigger Handlers",
 
-	Run: func(cmd *cobra.Command, args []string) {
-		cfg := &config.Config{}
-		if err := viper.Unmarshal(cfg); err != nil {
-			logrus.Fatalf("Cannot unmarshal config: %s", err)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := config.NewConfig()
+		if err != nil {
+			return err
 		}
+		// TODO: Handle errors for kubewatch.Run
 		kubewatch.Run(cfg)
+		return nil
 	},
 }
 
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
+		logrus.Fatalf("%s", err)
+	}
+}
+
+func initConfig() {
+	kubeWatchDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	err := config.InitConfig(&config.InitArgs{
+		ConfigFile:     configFile,
+		ConfigDir:      kubeWatchDir,
+		ConfigFileName: configFileName,
+	})
+	if err != nil {
 		logrus.Fatalf("%s", err)
 	}
 }
@@ -57,23 +68,4 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(
 		&configFile, "config", "", fmt.Sprintf("config file (default is ./%s)", configFileName),
 	)
-}
-
-func initConfig() {
-	currentDir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	replacer := strings.NewReplacer(".", "_")
-
-	viper.SetEnvPrefix("KW")
-	viper.SetEnvKeyReplacer(replacer)
-	viper.AutomaticEnv()
-
-	viper.AddConfigPath(currentDir)
-	viper.SetConfigName(configFileName)
-
-	if configFile != "" {
-		viper.SetConfigFile(configFile)
-	}
-	if err := viper.ReadInConfig(); err != nil {
-		logrus.Fatalf("Reading config: %s")
-	}
 }

@@ -16,6 +16,15 @@ limitations under the License.
 
 package config
 
+import (
+	"errors"
+	"fmt"
+	"github.com/spf13/viper"
+	"os"
+	"reflect"
+	"strings"
+)
+
 type Config struct {
 	Handler   Handler  `mapstructure:"handler"`
 	Resource  Resource `mapstructure:"resource"`
@@ -71,4 +80,43 @@ type Flock struct {
 
 type Webhook struct {
 	Url string `mapstructure:"url"`
+}
+
+func NewConfig() (*Config, error) {
+	cfg := &Config{}
+	viper.Unmarshal(cfg)
+	if reflect.DeepEqual(cfg, &Config{}) {
+		return nil, errors.New("Bad config")
+	} else {
+		return cfg, nil
+	}
+}
+
+type InitArgs struct {
+	ConfigFile     string
+	ConfigDir      string
+	ConfigFileName string
+}
+
+func InitConfig(args *InitArgs) error {
+	replacer := strings.NewReplacer(".", "_")
+
+	viper.SetEnvPrefix("KW")
+	viper.SetEnvKeyReplacer(replacer)
+	viper.AutomaticEnv()
+
+	if args.ConfigFile != "" {
+		if _, err := os.Stat(args.ConfigFile); err != nil {
+			return errors.New(fmt.Sprintf("Failed to read config file %s", args.ConfigFile))
+		}
+		viper.SetConfigFile(args.ConfigFile)
+
+	} else {
+		viper.AddConfigPath(args.ConfigDir)
+		viper.SetConfigName(args.ConfigFileName)
+		if err := viper.ReadInConfig(); err != nil {
+			return errors.New("Reading config: %s")
+		}
+	}
+	return nil
 }
