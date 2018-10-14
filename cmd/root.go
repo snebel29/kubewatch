@@ -18,14 +18,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/snebel29/kubewatch/config"
 	kubewatch "github.com/snebel29/kubewatch/pkg/client"
+	"github.com/snebel29/kubewatch/pkg/logging"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
 )
 
+var log *logging.Logger
 var configFile, configFileName string
 
 var RootCmd = &cobra.Command{
@@ -46,7 +47,7 @@ var RootCmd = &cobra.Command{
 
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		logrus.Fatalf("%s", err)
+		log.Fatalf("%s", err)
 	}
 }
 
@@ -58,11 +59,12 @@ func initConfig() {
 		ConfigFileName: configFileName,
 	})
 	if err != nil {
-		logrus.Fatalf("%s", err)
+		log.Fatalf("%s", err)
 	}
 }
 
 func init() {
+	log = logging.NewLogger("kubewatch")
 	configFileName = ".kubewatch"
 	cobra.OnInitialize(initConfig)
 	RootCmd.PersistentFlags().StringVar(

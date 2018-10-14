@@ -17,7 +17,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/snebel29/kubewatch/pkg/logging"
 	"github.com/spf13/cobra"
 )
 
@@ -30,14 +30,13 @@ var versionCmd = &cobra.Command{
 	Short: "print version",
 	Long:  `print version`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := logrus.New()
-		versionPrettyString(logger)
+		versionPrettyString(log)
 	},
 }
 
-func versionPrettyString(logger *logrus.Logger) {
-	logger.Info("gitCommit: ", gitCommit)
-	logger.Info("buildDate: ", buildDate)
+func versionPrettyString(log *logging.Logger) {
+	log.Info("gitCommit: ", gitCommit)
+	log.Info("buildDate: ", buildDate)
 }
 
 func init() {
