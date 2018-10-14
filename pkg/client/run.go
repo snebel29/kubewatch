@@ -17,15 +17,13 @@ limitations under the License.
 package client
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/snebel29/kubewatch/config"
-	"github.com/snebel29/kubewatch/pkg/handlers"
-	"github.com/snebel29/kubewatch/pkg/handlers/slack"
 	"github.com/snebel29/kubewatch/pkg/controller"
+	"github.com/snebel29/kubewatch/pkg/handlers"
+	"github.com/snebel29/kubewatch/pkg/handlers/flock"
 	"github.com/snebel29/kubewatch/pkg/handlers/hipchat"
 	"github.com/snebel29/kubewatch/pkg/handlers/mattermost"
-	"github.com/snebel29/kubewatch/pkg/handlers/flock"
+	"github.com/snebel29/kubewatch/pkg/handlers/slack"
 	"github.com/snebel29/kubewatch/pkg/handlers/webhook"
 )
 
@@ -48,7 +46,7 @@ func Run(conf *config.Config) {
 	}
 
 	if err := eventHandler.Init(conf); err != nil {
-		logrus.Fatal(err)
+		conf.Log.Fatal(err)
 	}
 	controller.Start(conf, eventHandler)
 }
