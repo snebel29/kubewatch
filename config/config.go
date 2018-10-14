@@ -19,6 +19,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/snebel29/kubewatch/pkg/logging"
 	"github.com/spf13/viper"
 	"os"
 	"reflect"
@@ -29,6 +30,7 @@ type Config struct {
 	Handler   Handler  `mapstructure:"handler"`
 	Resource  Resource `mapstructure:"resource"`
 	Namespace string   `mapstructure:"namespace,omitempty"`
+	Log       *logging.Logger
 	// for watching specific namespace, leave it empty for watching all.
 	// this config is ignored when watching namespaces
 }

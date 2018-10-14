@@ -8,7 +8,8 @@ import (
 func init() {
 	logrus.SetOutput(os.Stdout)
 	logrus.SetFormatter(&logrus.TextFormatter{})
-	logrus.SetFormatter(&logrus.JSONFormatter{TimestampFormat: "2006-01-02T15:04:05.000Z07:00"})
+	// TODO: Chosse between text and json formatter in the CLI
+	//logrus.SetFormatter(&logrus.JSONFormatter{TimestampFormat: "2006-01-02T15:04:05.000Z07:00"})
 }
 
 func NewLogger(serviceName string) *Logger {

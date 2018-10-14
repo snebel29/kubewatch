@@ -40,6 +40,7 @@ var RootCmd = &cobra.Command{
 			return err
 		}
 		// TODO: Handle errors for kubewatch.Run
+		cfg.Log = log
 		kubewatch.Run(cfg)
 		return nil
 	},
