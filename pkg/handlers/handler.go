@@ -18,11 +18,6 @@ package handlers
 
 import (
 	"github.com/snebel29/kubewatch/config"
-	"github.com/snebel29/kubewatch/pkg/handlers/slack"
-	"github.com/snebel29/kubewatch/pkg/handlers/hipchat"
-	"github.com/snebel29/kubewatch/pkg/handlers/mattermost"
-	"github.com/snebel29/kubewatch/pkg/handlers/flock"
-	"github.com/snebel29/kubewatch/pkg/handlers/webhook"
 )
 
 // Handler is implemented by any handler.
@@ -32,37 +27,4 @@ type Handler interface {
 	ObjectCreated(obj interface{})
 	ObjectDeleted(obj interface{})
 	ObjectUpdated(oldObj, newObj interface{})
-}
-
-// Map maps each event handler function to a name for easily lookup
-var Map = map[string]interface{}{
-	"default": &Default{},
-	"slack":   &slack.Slack{},
-	"hipchat": &hipchat.Hipchat{},
-	"mattermost": &mattermost.Mattermost{},
-	"flock": &flock.Flock{},
-	"webhook": &webhook.Webhook{},
-}
-
-// Default handler implements Handler interface,
-// print each event with JSON format
-type Default struct {
-}
-
-// Init initializes handler configuration
-// Do nothing for default handler
-func (d *Default) Init(c *config.Config) error {
-	return nil
-}
-
-func (d *Default) ObjectCreated(obj interface{}) {
-
-}
-
-func (d *Default) ObjectDeleted(obj interface{}) {
-
-}
-
-func (d *Default) ObjectUpdated(oldObj, newObj interface{}) {
-
 }
