@@ -88,7 +88,7 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	viper.Unmarshal(cfg)
 	if reflect.DeepEqual(cfg, &Config{}) {
-		return nil, errors.New("Bad config")
+		return cfg, errors.New("Bad config")
 	} else {
 		return cfg, nil
 	}
@@ -116,9 +116,10 @@ func InitConfig(args *InitArgs) error {
 	} else {
 		viper.AddConfigPath(args.ConfigDir)
 		viper.SetConfigName(args.ConfigFileName)
-		if err := viper.ReadInConfig(); err != nil {
-			return errors.New("Reading config: %s")
-		}
+	}
+	if err := viper.ReadInConfig(); err != nil {
+		return errors.New(fmt.Sprintf("Reading config: %s", err))
 	}
 	return nil
+
 }

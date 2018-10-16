@@ -63,13 +63,28 @@ func TestConfigWithConfigDiscoveryFail(t *testing.T) {
 	viper.Reset()
 }
 
-func TestLoadConfigIsParsedCorrectly(t *testing.T) {
+func TestLoadConfigIsParsedCorrectlyWithConfigDir(t *testing.T) {
 	InitConfig(&InitArgs{
 		ConfigFile:     "",
 		ConfigDir:      kubeWatchDir,
 		ConfigFileName: ".kubewatch",
 	})
+	cfg, _ := NewConfig()
+	if cfg.Resource.Deployment != true {
+		t.Errorf("Failed with value %t", cfg.Resource.Deployment)
+	}
+	if cfg.Namespace != "default" {
+		t.Errorf("Failed with value %s", cfg.Namespace)
+	}
+	viper.Reset()
+}
 
+func TestLoadConfigIsParsedCorrectlyWithConfigFile(t *testing.T) {
+	InitConfig(&InitArgs{
+		ConfigFile:     path.Join(kubeWatchDir, ".kubewatch.yaml"),
+		ConfigDir:      "",
+		ConfigFileName: "",
+	})
 	cfg, _ := NewConfig()
 	if cfg.Resource.Deployment != true {
 		t.Errorf("Failed with value %t", cfg.Resource.Deployment)
@@ -106,4 +121,5 @@ func TestConfigWithAutomaticEnvWorks(t *testing.T) {
 	if cfg.Resource.Deployment != false {
 		t.Errorf("Failed with value %t", cfg.Resource.Deployment)
 	}
+	viper.Reset()
 }
