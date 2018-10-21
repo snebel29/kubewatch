@@ -46,17 +46,17 @@ type Handler struct {
 // Resource contains resource configuration
 type Resource struct {
 	Deployment            bool `mapstructure:"deployment"`
-	ReplicationController bool `mapstructure:"rc"`
-	ReplicaSet            bool `mapstructure:"rs"`
-	DaemonSet             bool `mapstructure:"ds"`
-	Services              bool `mapstructure:"svc"`
-	Pod                   bool `mapstructure:"po"`
+	ReplicationController bool `mapstructure:"replicationcontroller"`
+	ReplicaSet            bool `mapstructure:"replicaset"`
+	DaemonSet             bool `mapstructure:"daemonset"`
+	Services              bool `mapstructure:"services"`
+	Pod                   bool `mapstructure:"pod"`
 	Job                   bool `mapstructure:"job"`
-	PersistentVolume      bool `mapstructure:"pv"`
-	Namespace             bool `mapstructure:"ns"`
+	PersistentVolume      bool `mapstructure:"persistentvolume"`
+	Namespace             bool `mapstructure:"namespace"`
 	Secret                bool `mapstructure:"secret"`
 	ConfigMap             bool `mapstructure:"configmap"`
-	Ingress               bool `mapstructure:"ing"`
+	Ingress               bool `mapstructure:"ingress"`
 }
 
 type Slack struct {
@@ -71,7 +71,7 @@ type Hipchat struct {
 }
 
 type Mattermost struct {
-	Channel  string `mapstructure:"room"`
+	Channel  string `mapstructure:"channel"`
 	Url      string `mapstructure:"url"`
 	Username string `mapstructure:"username"`
 }
@@ -88,7 +88,7 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	viper.Unmarshal(cfg)
 	if reflect.DeepEqual(cfg, &Config{}) {
-		return nil, errors.New("Bad config")
+		return cfg, errors.New("Unmarshaled config equals &Config")
 	} else {
 		return cfg, nil
 	}
@@ -97,9 +97,10 @@ func NewConfig() (*Config, error) {
 type InitArgs struct {
 	ConfigFile     string
 	ConfigDir      string
-	ConfigFileName string
+	ConfigFileName string // Without extension!!
 }
 
+// TODO: Do we really need to initialize separately?
 func InitConfig(args *InitArgs) error {
 	replacer := strings.NewReplacer(".", "_")
 
@@ -116,9 +117,9 @@ func InitConfig(args *InitArgs) error {
 	} else {
 		viper.AddConfigPath(args.ConfigDir)
 		viper.SetConfigName(args.ConfigFileName)
-		if err := viper.ReadInConfig(); err != nil {
-			return errors.New("Reading config: %s")
-		}
+	}
+	if err := viper.ReadInConfig(); err != nil {
+		return errors.New(fmt.Sprintf("Reading config: %s", err))
 	}
 	return nil
 }
