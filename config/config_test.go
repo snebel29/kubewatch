@@ -58,25 +58,66 @@ func TestConfigWithConfigDiscoveryFail(t *testing.T) {
 		ConfigFileName: ".non-existent",
 	})
 	if err == nil {
-		t.Errorf("Failed with error: %s", err)
+		t.Errorf("Should have failed with error, instead got: %s", err)
 	}
 	viper.Reset()
 }
 
 func TestLoadConfigIsParsedCorrectly(t *testing.T) {
-	InitConfig(&InitArgs{
+	err := InitConfig(&InitArgs{
 		ConfigFile:     "",
 		ConfigDir:      kubeWatchDir,
-		ConfigFileName: ".kubewatch",
+		ConfigFileName: ".kubewatch-all-set",
 	})
 
-	cfg, _ := NewConfig()
-	if cfg.Resource.Deployment != true {
-		t.Errorf("Failed with value %t", cfg.Resource.Deployment)
+	if err != nil {
+		t.Errorf("%s", err)
 	}
-	if cfg.Namespace != "default" {
-		t.Errorf("Failed with value %s", cfg.Namespace)
+
+	cfg, err := NewConfig()
+	if err != nil {
+		t.Fatalf("Failed with error: %s", err)
 	}
+	// TODO: All hanlder set should fail, only one handler ^^
+	tests := []struct {
+		option   string
+		has      interface{}
+		shouldBe interface{}
+	}{
+		{"handler.slack.channel", cfg.Handler.Slack.Channel, "default"},
+		{"handler.slack.token", cfg.Handler.Slack.Token, "default"},
+		{"handler.hipchat.token", cfg.Handler.Hipchat.Token, "default"},
+		{"handler.hipchat.room", cfg.Handler.Hipchat.Room, "default"},
+		{"handler.hipchat.url", cfg.Handler.Hipchat.Url, "default"},
+		{"handler.mattermost.channel", cfg.Handler.Mattermost.Channel, "default"},
+		{"handler.mattermost.url", cfg.Handler.Mattermost.Url, "default"},
+		{"handler.mattermost.username", cfg.Handler.Mattermost.Username, "default"},
+		{"handler.flock.url", cfg.Handler.Flock.Url, "default"},
+		{"handler.webhook.url", cfg.Handler.Webhook.Url, "default"},
+
+		{"deployment", cfg.Resource.Deployment, true},
+		{"replicationcontroller", cfg.Resource.ReplicationController, true},
+		{"replicaset", cfg.Resource.ReplicaSet, true},
+		{"daemonset", cfg.Resource.DaemonSet, true},
+		{"services", cfg.Resource.Services, true},
+		{"pod", cfg.Resource.Pod, true},
+		{"job", cfg.Resource.Job, true},
+		{"persistentvolume", cfg.Resource.PersistentVolume, true},
+		{"namespace", cfg.Resource.Namespace, true},
+		{"secret", cfg.Resource.Secret, true},
+		{"configmap", cfg.Resource.ConfigMap, true},
+		{"ingress", cfg.Resource.Ingress, true},
+
+		{"Namespace", cfg.Namespace, "namespace"},
+	}
+
+	for _, test := range tests {
+		if test.has != test.shouldBe {
+			t.Errorf("Option [%v] should be set to [%v] but has [%v]",
+				test.option, test.shouldBe, test.has)
+		}
+	}
+
 	viper.Reset()
 }
 
@@ -106,4 +147,5 @@ func TestConfigWithAutomaticEnvWorks(t *testing.T) {
 	if cfg.Resource.Deployment != false {
 		t.Errorf("Failed with value %t", cfg.Resource.Deployment)
 	}
+	viper.Reset()
 }
