@@ -1,0 +1,9 @@
+handler:
+  slack:
+    channel: "default"
+    token: "default"
+  webhook:
+    url: "default"
+resource:
+  deployment: true
+namespace: namespace

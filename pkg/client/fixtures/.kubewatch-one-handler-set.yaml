@@ -1,0 +1,6 @@
+handler:
+  webhook:
+    url: "default"
+resource:
+  deployment: true
+namespace: namespace

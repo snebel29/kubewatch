@@ -74,11 +74,8 @@ func TestLoadConfigIsParsedCorrectly(t *testing.T) {
 		t.Errorf("%s", err)
 	}
 
-	cfg, err := NewConfig()
-	if err != nil {
-		t.Fatalf("Failed with error: %s", err)
-	}
-	// TODO: All hanlder set should fail, only one handler ^^
+	cfg, _ := NewConfig()
+
 	tests := []struct {
 		option   string
 		has      interface{}

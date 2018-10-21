@@ -17,6 +17,9 @@ limitations under the License.
 package client
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
 	"github.com/snebel29/kubewatch/config"
 	"github.com/snebel29/kubewatch/pkg/controller"
 	"github.com/snebel29/kubewatch/pkg/handlers"
@@ -28,25 +31,43 @@ import (
 )
 
 // Run runs the event loop processing with given handler
-func Run(conf *config.Config) {
+func Run(conf *config.Config) error {
+	eventHandler, err := getHandler(conf)
+	if err != nil {
+		return err
+	}
+	// TODO: Handle controller errors
+	controller.Start(conf, eventHandler)
+	return nil
+}
+
+func getHandler(c *config.Config) (handlers.Handler, error) {
 	var eventHandler handlers.Handler
-	switch {
-	case len(conf.Handler.Slack.Channel) > 0 || len(conf.Handler.Slack.Token) > 0:
-		eventHandler = new(slack.Slack)
-	case len(conf.Handler.Hipchat.Room) > 0 || len(conf.Handler.Hipchat.Token) > 0:
-		eventHandler = new(hipchat.Hipchat)
-	case len(conf.Handler.Mattermost.Channel) > 0 || len(conf.Handler.Mattermost.Url) > 0:
-		eventHandler = new(mattermost.Mattermost)
-	case len(conf.Handler.Flock.Url) > 0:
-		eventHandler = new(flock.Flock)
-	case len(conf.Handler.Webhook.Url) > 0:
-		eventHandler = new(webhook.Webhook)
-	default:
-		eventHandler = new(handlers.Default)
+	var configuredHandlers []handlers.Handler
+
+	if !reflect.DeepEqual(&c.Handler.Slack, &config.Slack{}) {
+		configuredHandlers = append(configuredHandlers, new(slack.Slack))
+	}
+	if !reflect.DeepEqual(&c.Handler.Hipchat, &config.Hipchat{}) {
+		configuredHandlers = append(configuredHandlers, new(hipchat.Hipchat))
+	}
+	if !reflect.DeepEqual(&c.Handler.Mattermost, &config.Mattermost{}) {
+		configuredHandlers = append(configuredHandlers, new(mattermost.Mattermost))
+	}
+	if !reflect.DeepEqual(&c.Handler.Flock, &config.Flock{}) {
+		configuredHandlers = append(configuredHandlers, new(flock.Flock))
+	}
+	if !reflect.DeepEqual(&c.Handler.Slack, &config.Webhook{}) {
+		configuredHandlers = append(configuredHandlers, new(webhook.Webhook))
 	}
 
-	if err := eventHandler.Init(conf); err != nil {
-		conf.Log.Fatal(err)
+	if len(configuredHandlers) != 1 {
+		return nil, errors.New(fmt.Sprintf("You have to configure exactly one handler, instead got %d", len(configuredHandlers)))
 	}
-	controller.Start(conf, eventHandler)
+
+	eventHandler = configuredHandlers[0]
+	if err := eventHandler.Init(c); err != nil {
+		return nil, err
+	}
+	return eventHandler, nil
 }

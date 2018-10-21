@@ -87,11 +87,10 @@ type Webhook struct {
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	viper.Unmarshal(cfg)
-	if reflect.DeepEqual(cfg, &Config{}) {
-		return cfg, errors.New("Unmarshaled config equals &Config")
-	} else {
-		return cfg, nil
+	if err := cfg.validateConfig(); err != nil {
+		return cfg, err
 	}
+	return cfg, nil
 }
 
 type InitArgs struct {
@@ -100,7 +99,14 @@ type InitArgs struct {
 	ConfigFileName string // Without extension!!
 }
 
-// TODO: Do we really need to initialize separately?
+func (c *Config) validateConfig() error {
+	if reflect.DeepEqual(c, &Config{}) {
+		return errors.New("Unmarshaled config equals &Config")
+	}
+	return nil
+}
+
+// TODO: Do we really need to initialize separately? We could simplify tests by combining them.
 func InitConfig(args *InitArgs) error {
 	replacer := strings.NewReplacer(".", "_")
 
@@ -122,4 +128,5 @@ func InitConfig(args *InitArgs) error {
 		return errors.New(fmt.Sprintf("Reading config: %s", err))
 	}
 	return nil
+
 }
