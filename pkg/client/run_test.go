@@ -2,8 +2,7 @@ package client
 
 import (
 	"fmt"
-	"github.com/snebel29/kubewatch/config"
-	"github.com/snebel29/kubewatch/pkg/handlers/webhook"
+	c "github.com/snebel29/kubewatch/config"
 	"github.com/spf13/viper"
 	"path"
 	"runtime"
@@ -18,23 +17,42 @@ func init() {
 	fmt.Println(kubeWatchDir)
 }
 
-func TestSelectHandlerFromConfigShouldWorks(t *testing.T) {
-	if err := config.InitConfig(&config.InitArgs{
-		ConfigFile: path.Join(kubeWatchDir, ".kubewatch.yaml"),
-	}); err != nil {
-		t.Fatal(err)
+func TestConfigWithMoreThanOneHandlerShouldFail(t *testing.T) {
+	err := c.InitConfig(&c.InitArgs{
+		ConfigFile:     "",
+		ConfigDir:      kubeWatchDir,
+		ConfigFileName: ".kubewatch-two-handler-set",
+	})
+	if err != nil {
+		t.Errorf("%s", err)
 	}
+	cfg, err := c.NewConfig()
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	_, err = getHandler(cfg)
+	if err == nil {
+		t.Error("Should have failed with more than one handler")
+	}
+	viper.Reset()
+}
 
-	cfg, err := config.NewConfig()
+func TestConfigWithOneHandlerShouldWork(t *testing.T) {
+	err := c.InitConfig(&c.InitArgs{
+		ConfigFile:     "",
+		ConfigDir:      kubeWatchDir,
+		ConfigFileName: ".kubewatch-one-handler-set",
+	})
 	if err != nil {
-		t.Error(err)
+		t.Errorf("%s", err)
 	}
-	h, err := selectHandlerFromConfig(cfg)
+	cfg, err := c.NewConfig()
 	if err != nil {
-		t.Error(err)
+		t.Errorf("%s", err)
 	}
-	if _, ok := h.(*webhook.Webhook); !ok {
-		t.Errorf("handler of type: %T\n", h)
+	_, err = getHandler(cfg)
+	if err != nil {
+		t.Errorf("Failed with error: %s", err)
 	}
 	viper.Reset()
 }

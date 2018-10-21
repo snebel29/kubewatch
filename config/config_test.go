@@ -146,19 +146,3 @@ func TestConfigWithAutomaticEnvWorks(t *testing.T) {
 	}
 	viper.Reset()
 }
-
-func TestConfigWithMoreThanOneHandlerShouldFail(t *testing.T) {
-	err := InitConfig(&InitArgs{
-		ConfigFile:     "",
-		ConfigDir:      kubeWatchDir,
-		ConfigFileName: ".kubewatch-two-handler-set",
-	})
-	if err != nil {
-		t.Errorf("%s", err)
-	}
-
-	cfg, err := NewConfig()
-	if err = cfg.validateConfig(); err == nil {
-		t.Error("Should have failed")
-	}
-}

@@ -99,38 +99,9 @@ type InitArgs struct {
 	ConfigFileName string // Without extension!!
 }
 
-func (c *Config) getHandler() (interface{}, error) {
-	var setFields []interface{}
-
-	fields := []struct {
-		a interface{}
-		b interface{}
-	}{
-		{c.Handler.Slack, &Slack{}},
-		{c.Handler.Hipchat, &Hipchat{}},
-		{c.Handler.Mattermost, &Mattermost{}},
-		{c.Handler.Flock, &Flock{}},
-		{c.Handler.Webhook, &Webhook{}},
-	}
-	for _, t := range fields {
-		if !reflect.DeepEqual(t.a, t.b) {
-			setFields = append(setFields, t.a)
-		}
-	}
-
-	if len(setFields) != 1 {
-		return nil, errors.New(fmt.Sprintf("%d handler configured", len(setFields)))
-	}
-	return setFields[0], nil
-}
-
 func (c *Config) validateConfig() error {
 	if reflect.DeepEqual(c, &Config{}) {
 		return errors.New("Unmarshaled config equals &Config")
-	}
-	_, err := c.getHandler()
-	if err != nil {
-		return err
 	}
 	return nil
 }

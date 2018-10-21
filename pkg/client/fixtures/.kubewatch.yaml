@@ -1,6 +1,0 @@
-handler:
-  webhook:
-    url: "http://local.me:8889"
-resource:
-  deployment: true
-namespace: default
