@@ -17,6 +17,7 @@ limitations under the License.
 package client
 
 import (
+	"errors"
 	"github.com/snebel29/kubewatch/config"
 	"github.com/snebel29/kubewatch/pkg/controller"
 	"github.com/snebel29/kubewatch/pkg/handlers"
@@ -28,25 +29,46 @@ import (
 )
 
 // Run runs the event loop processing with given handler
-func Run(conf *config.Config) {
+func Run(conf *config.Config) error {
+	eventHandler, err := selectHandlerFromConfig(conf)
+	if err != nil {
+		return err
+	}
+	// TODO: Handle controller errors
+	controller.Start(conf, eventHandler)
+	return nil
+}
+
+func selectHandlerFromConfig(conf *config.Config) (handlers.Handler, error) {
+	// TODO: Smart looking that only one handler was configured, the others should be
+	// TODO: like the un-initialize structure, return the configured one.
+	// TODO: Add structure options validations, all this within config?
+	//if len(conf.Handler) > 1 {
+	//	return nil, errors.New("Configuring more than one handler is not allowed")
+	//}
 	var eventHandler handlers.Handler
+
 	switch {
 	case len(conf.Handler.Slack.Channel) > 0 || len(conf.Handler.Slack.Token) > 0:
 		eventHandler = new(slack.Slack)
+
 	case len(conf.Handler.Hipchat.Room) > 0 || len(conf.Handler.Hipchat.Token) > 0:
 		eventHandler = new(hipchat.Hipchat)
+
 	case len(conf.Handler.Mattermost.Channel) > 0 || len(conf.Handler.Mattermost.Url) > 0:
 		eventHandler = new(mattermost.Mattermost)
+
 	case len(conf.Handler.Flock.Url) > 0:
 		eventHandler = new(flock.Flock)
+
 	case len(conf.Handler.Webhook.Url) > 0:
 		eventHandler = new(webhook.Webhook)
-	default:
-		eventHandler = new(handlers.Default)
-	}
 
-	if err := eventHandler.Init(conf); err != nil {
-		conf.Log.Fatal(err)
+	default:
+		return nil, errors.New("You have to configure at least one handler")
 	}
-	controller.Start(conf, eventHandler)
+	if err := eventHandler.Init(conf); err != nil {
+		return nil, err
+	}
+	return eventHandler, nil
 }
