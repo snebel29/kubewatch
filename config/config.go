@@ -87,11 +87,10 @@ type Webhook struct {
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	viper.Unmarshal(cfg)
-	if reflect.DeepEqual(cfg, &Config{}) {
-		return cfg, errors.New("Unmarshaled config equals &Config")
-	} else {
-		return cfg, nil
+	if err := cfg.validateConfig(); err != nil {
+		return cfg, err
 	}
+	return cfg, nil
 }
 
 type InitArgs struct {
@@ -100,7 +99,43 @@ type InitArgs struct {
 	ConfigFileName string // Without extension!!
 }
 
-// TODO: Do we really need to initialize separately?
+func (c *Config) getHandler() (interface{}, error) {
+	var setFields []interface{}
+
+	fields := []struct {
+		a interface{}
+		b interface{}
+	}{
+		{c.Handler.Slack, &Slack{}},
+		{c.Handler.Hipchat, &Hipchat{}},
+		{c.Handler.Mattermost, &Mattermost{}},
+		{c.Handler.Flock, &Flock{}},
+		{c.Handler.Webhook, &Webhook{}},
+	}
+	for _, t := range fields {
+		if !reflect.DeepEqual(t.a, t.b) {
+			setFields = append(setFields, t.a)
+		}
+	}
+
+	if len(setFields) != 1 {
+		return nil, errors.New(fmt.Sprintf("%d handler configured", len(setFields)))
+	}
+	return setFields[0], nil
+}
+
+func (c *Config) validateConfig() error {
+	if reflect.DeepEqual(c, &Config{}) {
+		return errors.New("Unmarshaled config equals &Config")
+	}
+	_, err := c.getHandler()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO: Do we really need to initialize separately? We could simplify tests by combining them.
 func InitConfig(args *InitArgs) error {
 	replacer := strings.NewReplacer(".", "_")
 

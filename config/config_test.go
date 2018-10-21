@@ -74,11 +74,8 @@ func TestLoadConfigIsParsedCorrectly(t *testing.T) {
 		t.Errorf("%s", err)
 	}
 
-	cfg, err := NewConfig()
-	if err != nil {
-		t.Fatalf("Failed with error: %s", err)
-	}
-	// TODO: All hanlder set should fail, only one handler ^^
+	cfg, _ := NewConfig()
+
 	tests := []struct {
 		option   string
 		has      interface{}
@@ -148,4 +145,20 @@ func TestConfigWithAutomaticEnvWorks(t *testing.T) {
 		t.Errorf("Failed with value %t", cfg.Resource.Deployment)
 	}
 	viper.Reset()
+}
+
+func TestConfigWithMoreThanOneHandlerShouldFail(t *testing.T) {
+	err := InitConfig(&InitArgs{
+		ConfigFile:     "",
+		ConfigDir:      kubeWatchDir,
+		ConfigFileName: ".kubewatch-two-handler-set",
+	})
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+
+	cfg, err := NewConfig()
+	if err = cfg.validateConfig(); err == nil {
+		t.Error("Should have failed")
+	}
 }
