@@ -1,0 +1,30 @@
+handler:
+  slack:
+    channel: "default"
+    token: "default"
+  hipchat:
+    token: "default"
+    room: "default"
+    url: "default"
+  mattermost:
+    channel: "default"
+    url: "default"
+    username: "default"
+  flock:
+    url: "default"
+  webhook:
+    url: "default"
+resource:
+  deployment: true
+  replicationcontroller: true
+  replicaset: true
+  daemonset: true
+  services: true
+  pod: true
+  job: true
+  persistentvolume: true
+  namespace: true
+  secret: true
+  configmap: true
+  ingress: true
+namespace: namespace
